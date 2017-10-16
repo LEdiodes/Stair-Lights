@@ -21,18 +21,23 @@ Adafruit_NeoPixel strip = Adafruit_NeoPixel(447, PIN, NEO_GRB + NEO_KHZ800); // 
 
 // Set up Variables
  unsigned long timeOut=60000; // timestamp to remember when the PIR was triggered.
- int downUp = 0;              // variable to rememer the direction of travel up or down the stairs
+ int downUp = 1;              // variable to rememer the direction of travel up or down the stairs
+                                      // was 0 changed to 1 because stairs were lightsing up from the top down when it 
+                                      // itowned on and often I want them to turn on when I trip the entrance motion 
+                                      // sensor whcih is at the bottom of the stairs
  int alarmPinTop = 10;        // PIR at the top of the stairs
  int alarmPinBottom =11;      // PIR at the bottom of the stairs
- int alarmValueTop = LOW;    // Variable to hold the PIR status
- int alarmValueBottom = LOW; // Variable to hold the PIR status
- int ledPin = 13;           // LED on the arduino board flashes when PIR activated
- int LDRSensor = A0;        // Light dependant resistor
- int LDRValue = 0;          // Variable to hold the LDR value
- int colourArray[350];      // An array to hold RGB values
- int change = 1;            // used in 'breathing' the LED's
- int breathe = 0;           // used in 'breathing' the LED's
- 
+ int alarmValueTop = LOW;     // Variable to hold the PIR status
+ int alarmValueBottom = LOW;  // Variable to hold the PIR status
+ int ledPin = 13;             // LED on the arduino board flashes when PIR activated
+ int LDRSensor = A0;          // Light dependant resistor
+ int LDRValue = 0;            // Variable to hold the LDR value
+ int colourArray[255];        // An array to hold RGB values
+ int change = 1;              // used in 'breathing' the LED's
+ int breathe = 0;             // used in 'breathing' the LED's
+ int LEDcolor1 = 208;         // LED color - "255,165,0" = orange
+ int LEDcolor2 = 65;         // LED color - "255,165,0" = orange
+ int LEDcolor3 = 9;           // LED color - "255,165,0" = orange
 
 void setup() {
    strip.begin();
@@ -50,6 +55,7 @@ void setup() {
  void loop() {
 
     if (timeOut+15700 < millis()) {        // idle state - 'breathe' the top and bottom LED to show program is looping
+          strip.setBrightness(255);
        uint32_t blue = (0, 0, breathe);
        breathe = breathe + change;
        strip.setPixelColor(0, blue);
@@ -96,6 +102,7 @@ void setup() {
     //Serial.println(alarmPinBottom);
     
     if (alarmValueTop == HIGH && downUp != 2)  {      // the 2nd term allows timeOut to be contantly reset if one lingers at the top of the stairs before decending but will not allow the bottom PIR to reset timeOut as you decend past it.
+         strip.setBrightness(25);
       timeOut=millis();  // Timestamp when the PIR is triggered.  The LED cycle wil then start.
       downUp = 1;
       //clearStrip();
@@ -103,6 +110,7 @@ void setup() {
     }
  
     if (alarmValueBottom == HIGH && downUp != 1)  {    // the 2nd term allows timeOut to be contantly reset if one lingers at the bottom of the stairs before decending but will not allow the top PIR to reset timeOut as you decend past it.
+         strip.setBrightness(25);
       timeOut=millis();    // Timestamp when the PIR is triggered.  The LED cycle wil then start.
       downUp = 2;
       //clearStrip();
@@ -126,7 +134,7 @@ void setup() {
 
  void topdown() {
     Serial.println ("detected top");                  // Helpful debug message
-    colourWipeDown(strip.Color(10, 10, 10), 300 );    // Warm White - RGB - then 4th number is delay
+    colourWipeDown(strip.Color(LEDcolor1,LEDcolor2,LEDcolor3), 300 );    // Warm White - RGB - then 4th number is delay
     //for(int i=0; i<3; i++) {                        // Helpful debug indication flashes led on Arduino board twice
       //digitalWrite(ledPin,HIGH);
      // delay(1000);
@@ -139,7 +147,7 @@ void setup() {
 
  void bottomup() {
     Serial.println ("detected bottom");            // Helpful debug message
-    colourWipeUp(strip.Color(10, 10, 10), 300);    // Warm White
+    colourWipeUp(strip.Color(LEDcolor1,LEDcolor2,LEDcolor3), 300);    // Warm White
     //for(int i=0; i<3; i++) {                     // Helpful debug indication flashes led on Arduino board twice
       //digitalWrite(ledPin,HIGH);
       // delay(1000);
